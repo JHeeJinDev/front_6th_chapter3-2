@@ -2,6 +2,11 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { createRepeatingEvents } from '../utils/repeatUtils';
+
+function isRepeatingEvent(evt: Event | EventForm): boolean {
+  return evt.repeat?.type !== 'none';
+}
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -23,23 +28,37 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
-      let response;
+      const formData = { ...eventData } as EventForm;
+
       if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
+        // 수정 모드: 반복 일정을 수정하면 단일 일정으로 변경
+        const existingEvent = eventData as Event;
+        const response = await fetch(`/api/events/${existingEvent.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
+          body: JSON.stringify(formData),
         });
+        if (!response.ok) throw new Error('Failed to save event');
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to save event');
+        // 추가 모드
+        if (isRepeatingEvent(formData)) {
+          // 반복 일정인 경우
+          const repeatEvents = createRepeatingEvents(formData);
+          const response = await fetch('/api/events-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: repeatEvents }),
+          });
+          if (!response.ok) throw new Error('Failed to save repeating events');
+        } else {
+          // 단일 일정인 경우
+          const response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
+          if (!response.ok) throw new Error('Failed to save event');
+        }
       }
 
       await fetchEvents();
