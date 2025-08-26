@@ -1,4 +1,12 @@
-import { Notifications, ChevronLeft, ChevronRight, Delete, Edit, Close } from '@mui/icons-material';
+import {
+  Notifications,
+  ChevronLeft,
+  ChevronRight,
+  Delete,
+  Edit,
+  Close,
+  Loop,
+} from '@mui/icons-material';
 import {
   Alert,
   AlertTitle,
@@ -183,6 +191,7 @@ function App() {
                       )
                       .map((event) => {
                         const isNotified = notifiedEvents.includes(event.id);
+                        const isRepeat = event.repeat.type !== 'none';
                         return (
                           <Box
                             key={event.id}
@@ -200,6 +209,7 @@ function App() {
                           >
                             <Stack direction="row" spacing={1} alignItems="center">
                               {isNotified && <Notifications fontSize="small" />}
+                              {isRepeat && <Loop fontSize="small" color="primary" />}
                               <Typography
                                 variant="caption"
                                 noWrap
@@ -270,6 +280,7 @@ function App() {
                             )}
                             {getEventsForDay(filteredEvents, day).map((event) => {
                               const isNotified = notifiedEvents.includes(event.id);
+                              const isRepeat = event.repeat.type !== 'none';
                               return (
                                 <Box
                                   key={event.id}
@@ -286,6 +297,7 @@ function App() {
                                   }}
                                 >
                                   <Stack direction="row" spacing={1} alignItems="center">
+                                    {isRepeat && <Loop fontSize="small" color="primary" />}
                                     {isNotified && <Notifications fontSize="small" />}
                                     <Typography
                                       variant="caption"
