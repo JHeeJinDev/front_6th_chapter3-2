@@ -135,7 +135,8 @@ function App() {
       location,
       category,
       repeat: {
-        type: isRepeating ? repeatType : 'none',
+        // 수정 모드에서는 항상 단일 일정으로 변경 (반복 해제)
+        type: editingEvent ? 'none' : isRepeating ? repeatType : 'none',
         interval: repeatInterval,
         endDate: repeatEndDate || undefined,
       },

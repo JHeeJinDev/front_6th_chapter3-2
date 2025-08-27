@@ -115,7 +115,7 @@ export function shouldCreateEventForDate(eventData: EventForm, targetDate: Date)
 
 /**
  * 최종 종료일을 반환.
- * MAX_REPEAT_END_DATE는 2025년 9월 30일이므로 2025년 이후의 날짜는 생성하지 않음.
+ * MAX_REPEAT_END_DATE는 2025년 10월 30일이므로 2025년 이후의 날짜는 생성하지 않음.
  * 2월 29일이 윤년인 경우 2025년 이후의 날짜는 생성하지 않기 때문에 윤년으로 설정한 경우엔 MAX_REPEAT_END_DATE를 풀어줘야함.
  * 예를 들어 2025년 2월 29일을 설정하고 연간 반복 간격을 4년이면 2029년 2월 29일이 최종 종료일이 됨.
  */
@@ -124,7 +124,8 @@ function getFinalEndDate(eventData: EventForm): Date {
   const maxLimit = new Date(MAX_REPEAT_END_DATE);
 
   if (eventData.repeat.endDate) {
-    return new Date(eventData.repeat.endDate);
+    const endDate = new Date(eventData.repeat.endDate);
+    return endDate > maxLimit ? maxLimit : endDate;
   }
 
   const isFeb29 =
@@ -137,7 +138,9 @@ function getFinalEndDate(eventData: EventForm): Date {
     let year = startDate.getFullYear() + eventData.repeat.interval;
     while (year <= 2050) {
       if (isLeapYear(year)) {
-        return new Date(`${year}-02-29`);
+        const feb29Date = new Date(`${year}-02-29`);
+        // MAX_REPEAT_END_DATE를 넘지 않도록 제한
+        return feb29Date > maxLimit ? maxLimit : feb29Date;
       }
       year += eventData.repeat.interval;
     }
