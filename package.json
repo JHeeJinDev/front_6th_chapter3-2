@@ -14,7 +14,11 @@
     "build": "tsc -b && vite build",
     "lint:eslint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:tsc": "tsc --pretty",
-    "lint": "pnpm lint:eslint && pnpm lint:tsc"
+    "lint": "pnpm lint:eslint && pnpm lint:tsc",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -30,6 +34,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.33.0",
+    "@playwright/test": "^1.55.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.5.2",
