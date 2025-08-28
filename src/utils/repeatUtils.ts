@@ -81,14 +81,12 @@ export function shouldCreateEventForDate(eventData: EventForm, targetDate: Date)
         return false;
       }
 
-      // 매월 같은 날짜에 반복
+      // 매월 같은 날짜에 반복 (31일이면 31일에만, 해당 월에 31일이 없으면 생성하지 않음)
       if (targetDay === eventDay) {
         return true;
       }
 
-      // 31일처럼 해당 월에 없는 날짜인 경우, 월의 마지막 날에 생성
-      const lastDayOfTargetMonth = getLastDayOfMonth(targetYear, targetMonth + 1);
-      return eventDay > lastDayOfTargetMonth && targetDay === lastDayOfTargetMonth;
+      return false;
     }
 
     case 'yearly': {
