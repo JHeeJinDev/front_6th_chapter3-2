@@ -33,10 +33,14 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       if (editing) {
         // 수정 모드: 반복 일정을 수정하면 단일 일정으로 변경
         const existingEvent = eventData as Event;
+        const updatedEvent = {
+          ...formData,
+          repeat: { type: 'none', interval: 0 }, // 반복을 해제하여 단일 일정으로 변경
+        };
         const response = await fetch(`/api/events/${existingEvent.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(updatedEvent),
         });
         if (!response.ok) throw new Error('Failed to save event');
       } else {
