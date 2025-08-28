@@ -36,4 +36,54 @@ export const handlers = [
 
     return new HttpResponse(null, { status: 404 });
   }),
+
+  http.post('/api/events-list', async ({ request }) => {
+    const { events: requestEvents } = (await request.json()) as { events: Event[] };
+    const repeatId = String(events.length + 1);
+    const newEvents = requestEvents.map((event, index) => {
+      const isRepeatEvent = event.repeat.type !== 'none';
+      return {
+        ...event,
+        id: String(events.length + index + 1),
+        repeat: {
+          ...event.repeat,
+          id: isRepeatEvent ? repeatId : undefined,
+        },
+      };
+    });
+
+    events.push(...newEvents);
+
+    return HttpResponse.json(newEvents, { status: 201 });
+  }),
+
+  http.put('/api/events-list', async ({ request }) => {
+    const { events: requestEvents } = (await request.json()) as { events: Event[] };
+    let isUpdated = false;
+
+    const newEvents = [...events];
+    requestEvents.forEach((event) => {
+      const index = events.findIndex((target) => target.id === event.id);
+      if (index !== -1) {
+        isUpdated = true;
+        newEvents[index] = { ...events[index], ...event };
+      }
+    });
+
+    if (isUpdated) {
+      events.splice(0, events.length, ...newEvents);
+      return HttpResponse.json(newEvents, { status: 200 });
+    }
+
+    return new HttpResponse(null, { status: 404 });
+  }),
+
+  http.delete('/api/events-list', async ({ request }) => {
+    const { eventIds } = (await request.json()) as { eventIds: string[] };
+    const remainingEvents = events.filter((event) => !eventIds.includes(event.id));
+
+    events.splice(0, events.length, ...remainingEvents);
+
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];
